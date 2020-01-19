@@ -4,5 +4,5 @@
 
 (deftest get-version
   (is (= (get version :major) 0))
-  (is (= (get version :minor) 5))
-  (is (= (get version :incremental) 1)))
+  (is (= (get version :minor) 0))
+  (is (= (get version :incremental) 0)))

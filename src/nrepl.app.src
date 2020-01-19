@@ -1,5 +1,5 @@
 { application, 'nrepl'
-, [ {vsn, git}
+, [ {vsn, "0.0.1"}
   , {description, "A Clojerl application"}
   , {modules, []}
   , { applications

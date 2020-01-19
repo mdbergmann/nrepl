@@ -5,7 +5,7 @@
 (def ^{:private true} version-string
   "Current version of nREPL as a string.
   See also `version`."
-  (let [result (application/get_key :clojerl :vsn)]
+  (let [result (application/get_key :nrepl :vsn)]
     (if (= (first result) :ok) (last result) "0.0.0")))
 
 (def version
