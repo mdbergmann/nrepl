@@ -6,11 +6,11 @@
 
 (defn log
   [ex & msgs]
-  (let [ex (when (instance? clojerl.ExceptionInfo ex) ex)
+  (let [ex (when (satisfies? clojerl.IError ex) ex)
         msgs (if ex msgs (cons ex msgs))]
     (binding [*out* *err*]
       (apply println "ERROR:" msgs)
-      (when ex (.message ^clojerl.ExceptionInfo ex)))))
+      (when ex (prn (.message ex))))))
 
 (defmacro returning
   "Executes `body`, returning `x`."
@@ -60,4 +60,5 @@
       (try
         (require (symbol (namespace sym)))
         (resolve sym)
-        (catch _ _))))
+        (catch _ _ :stack stack
+               (prn stack)))))

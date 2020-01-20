@@ -14,25 +14,20 @@
    [clojure.erlang.io :as io]
    [clojure.edn :as edn]))
 
-(def ^:private home-dir
+(defn- home-dir
   "The user's home directory."
   (os/getenv #erl"HOME"))
 
-(def ^:private separator
-  "MB: File.separator
-  This should be taken from File.separator, but I couldn't find it."
-  "/")
-
-(def config-dir
+(defn- config-dir
   "nREPL's configuration directory.
   By default it's ~/.nrepl, but this can be overridden
   with the NREPL_CONFIG_DIR env variable."
   (or (os/getenv #erl"NREPL_CONFIG_DIR")
-      (str home-dir separator ".nrepl")))
+      (filename/join home-dir ".nrepl")))
 
-(def config-file
+(defn- config-file
   "nREPL's config file."
-  (str config-dir separator "nrepl.edn"))
+  (filename/join config-dir "nrepl.edn"))
 
 (defn- load-edn
   "Load edn from an io/reader source (filename or io/resource)."
@@ -50,7 +45,8 @@
       (load-edn file)
       {})))
 
-(def config
+;; MB: if this is called too often we should consider putting this into an Atom.
+(defn- config
   "Configuration map.
   It's created by merging the global configuration file
   with a local configuration file that would normally
