@@ -16,17 +16,20 @@
 
 (defn- home-dir
   "The user's home directory."
+  []
   (os/getenv #erl"HOME"))
 
 (defn- config-dir
   "nREPL's configuration directory.
   By default it's ~/.nrepl, but this can be overridden
   with the NREPL_CONFIG_DIR env variable."
+  []
   (or (os/getenv #erl"NREPL_CONFIG_DIR")
       (filename/join home-dir ".nrepl")))
 
 (defn- config-file
   "nREPL's config file."
+  []
   (filename/join config-dir "nrepl.edn"))
 
 (defn- load-edn
@@ -46,12 +49,13 @@
       {})))
 
 ;; MB: if this is called too often we should consider putting this into an Atom.
-(defn- config
+(defn- config []
   "Configuration map.
   It's created by merging the global configuration file
   with a local configuration file that would normally
   the placed in the directory in which you're running
   nREPL."
+  []
   (merge
    (load-config config-file)
    (load-config ".nrepl.edn")))
