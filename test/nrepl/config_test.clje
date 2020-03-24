@@ -1,0 +1,49 @@
+(ns nrepl.config-test
+  (:require [clojure.test :refer :all]
+            [clojure.string :as s]
+            [clojure.erlang.io :as io]
+            [nrepl.config :as c]))
+
+;; There is a lot of implementation tested in here which should normally be avoided.
+;; But a) there is not a lot in 'config' module and b) it's not developed in a test-driven way
+;; so we have little choice if we want to verify as much as possible that it works.
+
+(defn create-config-dir [dir-state config-dir]
+  (prn "creating dir: " config-dir (file/make_dir config-dir)))
+
+(deftest t-home-dir
+  (prn c/home-dir)
+  (is (not= c/home-dir nil)))
+
+(deftest t-config-dir-home
+  (os/unsetenv #erl"NREPL_CONFIG_DIR")
+  (is (= (c/config-dir) (filename/join c/home-dir ".nrepl"))))
+
+(deftest t-config-dir-custom
+  (os/putenv #erl"NREPL_CONFIG_DIR" #erl"/tmp/.nrepl-test")
+  (is (= (c/config-dir) "/tmp/.nrepl-test")))
+
+(deftest t-config-file-home
+  (os/unsetenv #erl"NREPL_CONFIG_DIR")
+  (is (= (c/config-file) (filename/join (c/config-dir) "nrepl.edn"))))
+
+(deftest t-config-file-custom
+  (os/putenv #erl"NREPL_CONFIG_DIR" #erl"/tmp/.nrepl-test")
+  (is (= (c/config-file) (filename/join (c/config-dir) "nrepl.edn"))))
+
+(deftest t-load-edn
+  ;; make sure the file exists
+  (os/putenv #erl"NREPL_CONFIG_DIR" #erl"/tmp/.nrepl-test")
+  (prn "config-dir: " (c/config-dir))
+  (prn "config-file: " (c/config-file))
+  (let [dir-state (file/read_file_info (c/config-dir))]
+    (prn "dir-state: " dir-state)
+    (case (first dir-state)
+      :ok (prn "dir exists!")
+      :error (case (second dir-state)
+               :enoent (create-config-dir dir-state (c/config-dir))
+               :else (prn "Unknown error!"))
+      :else (prn "error: " dir-state)))
+    
+  (prn "opening file: " (io/file-open (c/config-file) [:read :write]))
+  (prn "loaded-edn: " (c/load-edn (c/config-file))))
